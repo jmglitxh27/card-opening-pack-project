@@ -196,18 +196,18 @@ body {
 }
 
 .mascot-panel {
-  position: absolute;
-  bottom: 2rem;
-  left: 2rem;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
   display: flex;
   align-items: flex-end;
-  z-index: 5;
+  z-index: 1000;
+  pointer-events: none; /* prevents it from blocking clicks unless needed */
 }
 
 .mascot-img {
   height: 120px;
   width: auto;
-  transform: scaleX(1); /* Flip for fun if needed */
 }
 
 .speech-bubble {
@@ -272,69 +272,129 @@ body {
 }
 
 .trophy-room {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem 0;
   text-align: center;
-  margin-top: 60px;
-}
-
-.trophy-room h2 {
-  font-size: 2rem;
-  font-weight: bold;
-  color: white;
-  margin-bottom: 20px;
 }
 
 .trophy-icon {
-  margin-right: 8px;
-}
-
-.empty-message {
-  font-size: 1.2rem;
-  color: #fff;
-  padding: 30px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
-  display: inline-block;
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
 }
 
 .trophy-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 20px;
-  justify-items: center;
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  justify-content: center;
+  margin-top: 1rem;
+  overflow-y: auto;
+  max-height: 70vh;
+  padding-bottom: 1rem;
 }
 
 .trophy-cell {
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid white;
-  border-radius: 12px;
-  padding: 10px;
-  width: 120px;
+  background: #2e2e2e;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-align: center;
   height: 160px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-between;
 }
 
-.card-image {
+.card-image, .locked-slot {
   width: 100%;
-  height: auto;
-  border-radius: 6px;
-  margin-bottom: 8px;
+  max-height: 100px;
+  object-fit: contain;
+  border-radius: 4px;
 }
 
 .card-name {
   font-size: 0.9rem;
   font-weight: bold;
   color: white;
-  text-align: center;
+  margin-top: 6px;
 }
 
-.locked-slot {
-  width: 60px;
-  height: 60px;
-  opacity: 0.4;
+.empty-message {
+  font-style: italic;
+  color: #ccc;
+}
+
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 15, 15, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.animated-pack {
+  width: 200px;
+  animation: moveCenter 1.2s ease-in-out, vibrate 0.3s 1.2s infinite;
+}
+
+@keyframes moveCenter {
+  from {
+    transform: scale(0.5) translateY(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vibrate {
+  0% { transform: rotate(1deg); }
+  25% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
+  75% { transform: rotate(-1deg); }
+  100% { transform: rotate(1deg); }
+}
+
+.card-reveal {
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.reveal-card {
+  cursor: pointer;
+  max-width: 300px;
+  background-color: #222;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  color: #fff;
+  animation: popIn 0.4s ease-in-out;
+}
+
+.reveal-card img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.reveal-info small {
+  color: #aaa;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
