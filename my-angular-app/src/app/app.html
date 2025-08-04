@@ -1,0 +1,66 @@
+<div class="news-ticker">
+  <div class="ticker-text">
+    <span>🕒 New Pack Drops in 1h 24m • </span>
+    <span>🔥 New Rare Cards Coming Soon! • </span>
+    <span>💎 Special Event Pack This Weekend! • </span>
+  </div>
+</div>
+<div class="pack-container">
+  <h1 class="packs-title">Packs of the Week</h1>
+
+  <ng-container *ngIf="packs.length > 0; else loading">
+    <div class="pack-grid">
+      <div *ngFor="let pack of packs" class="pack-wrapper" [ngClass]="'id-' + pack.id">
+        <div
+          class="pack-card"
+          (click)="handlePackClick(pack, $event)"
+        >
+          <img [src]="pack.pack_image" [alt]="pack.name" class="pack-image" />
+
+          <div class="pack-overlay">
+            <div class="pack-details">
+              <h2>{{ pack.name }}</h2>
+              <p>{{ pack.price }} Coins</p>
+              <p>Contains {{ pack.cards_per_pack }} Cards</p>
+              <button class="buy-button">Buy Pack</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+<div class="trophy-room">
+  <h2><span class="trophy-icon">🏆</span> TROPHY ROOM</h2>
+
+  <div *ngIf="collectedCards.length === 0" class="empty-message">
+    No cards! Open packs to get some!
+  </div>
+
+  <div class="trophy-grid" *ngIf="collectedCards.length > 0">
+    <div *ngFor="let slot of trophySlots; let i = index" class="trophy-cell">
+      <ng-container *ngIf="collectedCards[i]; else lockedCard">
+        <img [src]="collectedCards[i].image" [alt]="collectedCards[i].name" class="card-image" />
+        <div class="card-name">{{ collectedCards[i].name }}</div>
+      </ng-container>
+      <ng-template #lockedCard>
+        <img src="assets/locked-slot.png" alt="Locked" class="locked-slot" />
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+  <div class="mascot-panel">
+    <img src="https://xijvfhtljgfifbzlveee.supabase.co/storage/v1/object/public/packs//pup_mascot.png" alt="Mascot" class="mascot-img" />
+    <div class="speech-bubble">
+      <span>{{ currentQuote }}</span>
+    </div>
+  </div>
+  
+
+  <ng-template #loading>
+    <div class="loading">
+      <p>Loading available packs...</p>
+    </div>
+  </ng-template>
+</div>
