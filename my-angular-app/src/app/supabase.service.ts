@@ -1,9 +1,7 @@
 // src/app/supabase.service.ts
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = 'https://xijvfhtljgfifbzlveee.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpanZmaHRsamdmaWZiemx2ZWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyNDMzMDAsImV4cCI6MjA2OTgxOTMwMH0.wGjwR9WgNwZXGqbKb0NUDLwhSOcsZPt67UfjviPm9eQ';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +10,7 @@ export class SupabaseService {
   private supabase: SupabaseClient;
 
   constructor() {
-    this.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   }
 
   getTable(tableName: string) {
@@ -31,8 +29,14 @@ export class SupabaseService {
     return this.supabase.from('packs').select('*');
   }
 
-  // ✅ New Method
   getAllPlayers() {
-    return this.supabase.from('players').select('*');
+    return this.supabase
+      .from('players')
+      .select(`
+        *,
+        team:teams (
+          logo_url
+        )
+      `);
   }
 }

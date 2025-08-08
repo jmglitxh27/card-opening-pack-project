@@ -7,6 +7,7 @@ import { SupabaseService } from './supabase.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './app.html',
+  
 })
 export class AppComponent implements OnInit {
   packs: any[] = [];
@@ -18,6 +19,9 @@ export class AppComponent implements OnInit {
   isExploded = false;
   currentRevealIndex = 0;
   pulledCards: any[] = [];
+  coins: number = 0;
+  
+  
 
   currentQuote = '';
   quotes = [
@@ -30,14 +34,22 @@ export class AppComponent implements OnInit {
 
   constructor(private supabase: SupabaseService) {}
 
-  async ngOnInit() {
+  ngOnInit() {
+    this.coins = 10000;
+    localStorage.setItem('coins', this.coins.toString());
+    this.updateCoinDisplay();
+
+    this.loadPacks();
+    this.startQuoteRotation();
+  }
+
+  async loadPacks() {
     const { data, error } = await this.supabase.getAllPacks();
     if (error) {
       console.error('Error fetching packs:', error);
     } else {
       this.packs = data;
     }
-    this.startQuoteRotation();
   }
 
   startQuoteRotation() {
@@ -52,6 +64,17 @@ export class AppComponent implements OnInit {
 
   handlePackClick(pack: any, event: Event): void {
     event.stopPropagation();
+
+    const packCost = pack.price || 500; // Default cost if not provided
+
+    if (this.coins < packCost) {
+      alert("Not enough coins to open this pack!");
+      return;
+    }
+
+    this.coins -= packCost;
+    this.updateCoinDisplay();
+
     this.selectedPack = pack;
     this.isOpening = true;
 
@@ -70,14 +93,21 @@ export class AppComponent implements OnInit {
     }
     return 'common';
   }
+  updateCoinDisplay() {
+    localStorage.setItem('coins', this.coins.toString());
+  }
 
+  addCoins(amount: number) {
+    this.coins += amount;
+    this.updateCoinDisplay();
+  }
   async openPack(pack: any): Promise<void> {
     const { data: players, error } = await this.supabase.getAllPlayers();
     if (error || !players) {
       console.error('Error fetching players:', error);
       return;
     }
-
+    
     const cardsPerPack = pack.cards_per_pack || 3;
     const pullRates = pack.rarity_pull_rates || {
       common: 0.85,
@@ -99,12 +129,14 @@ export class AppComponent implements OnInit {
       if (bucket.length === 0) continue;
       const card = bucket[Math.floor(Math.random() * bucket.length)];
       this.pulledCards.push({
+        id: card.id,
         name: card.player_name,
         image: card.card_image_url,
         position: card.position,
         rating: card.rating,
         nationality: card.nationality,
-        rarity
+        rarity,
+        teamLogo: card.team?.logo_url || null
       });
     }
 
@@ -119,10 +151,42 @@ export class AppComponent implements OnInit {
   }
 
   finishCardReveal(): void {
-    this.collectedCards = [...this.collectedCards, ...this.pulledCards];
+    let newCardsAdded = 0;
+    let duplicateCount = 0;
+
+    const newCards = this.pulledCards.map(card => ({
+      ...card,
+      justUnlocked: true,
+      id: card.id // Make sure `id` is passed from `openPack`
+    }));
+
+    const uniqueCollected = new Map(this.collectedCards.map(c => [c.id, c]));
+
+    for (const card of newCards) {
+      if (uniqueCollected.has(card.id)) {
+        // Duplicate found — give coin(s)
+        this.addCoins(5); // You can change the amount per duplicate
+        duplicateCount++;
+      } else {
+        uniqueCollected.set(card.id, card);
+        newCardsAdded++;
+      }
+    }
+
+    // Update collectedCards with no duplicates
+    this.collectedCards = Array.from(uniqueCollected.values());
+
+    // Remove `justUnlocked` flag after animation
+    setTimeout(() => {
+      this.collectedCards.forEach(card => (card.justUnlocked = false));
+    }, 1000);
+
     this.isOpening = false;
     this.isExploded = false;
     this.pulledCards = [];
     this.selectedPack = null;
+
+    console.log(`Added ${newCardsAdded} new cards. Found ${duplicateCount} duplicates.`);
   }
+
 }

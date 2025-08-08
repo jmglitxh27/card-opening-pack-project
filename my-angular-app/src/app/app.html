@@ -6,6 +6,8 @@
   </div>
 </div>
 
+<div id="coin-count">🪙 Coins: {{ coins }}</div>
+
 <div class="pack-container">
   <h1 class="packs-title">Packs of the Week</h1>
 
@@ -35,17 +37,36 @@
     </div>
 
     <div class="trophy-grid" *ngIf="collectedCards.length > 0">
-      <div *ngFor="let slot of trophySlots; let i = index" class="trophy-cell">
+      <div
+        *ngFor="let slot of trophySlots; let i = index"
+        class="trophy-cell"
+        [ngClass]="{
+          'common-card': collectedCards[i]?.rarity === 'common',
+          'rare-card': collectedCards[i]?.rarity === 'rare',
+          'legendary-card': collectedCards[i]?.rarity === 'legendary',
+          'new-card': collectedCards[i]?.justUnlocked
+        }"
+      >
         <ng-container *ngIf="collectedCards[i]; else lockedCard">
+          <div class="card-rating">{{ collectedCards[i].rating }}</div>
           <img [src]="collectedCards[i].image" [alt]="collectedCards[i].name" class="card-image" />
-          <div class="card-name">{{ collectedCards[i].name }}</div>
+          <div class="card-name">
+            <img
+              *ngIf="collectedCards[i]?.teamLogo"
+              [src]="collectedCards[i].teamLogo"
+              alt="Team Logo"
+              class="team-logo"
+            />
+            {{ collectedCards[i].name }}
+          </div>
         </ng-container>
         <ng-template #lockedCard>
           <img src="assets/locked-slot.png" alt="Locked" class="locked-slot" />
         </ng-template>
       </div>
     </div>
-  </div>
+
+
 
   <div class="mascot-panel">
     <img src="https://xijvfhtljgfifbzlveee.supabase.co/storage/v1/object/public/packs//pup_mascot.png" alt="Mascot" class="mascot-img" />
@@ -69,12 +90,36 @@
 
     <!-- 💥 Cards revealed one by one after explosion -->
     <div *ngIf="isExploded && pulledCards.length > 0" class="card-reveal">
-      <div class="reveal-card" (click)="revealNextCard()">
-        <img [src]="pulledCards[currentRevealIndex].image" [alt]="pulledCards[currentRevealIndex].name" />
+      <div
+        class="reveal-card"
+        [ngClass]="{
+          'rare-card': pulledCards[currentRevealIndex].rarity === 'rare',
+          'legendary-card': pulledCards[currentRevealIndex].rarity === 'legendary'
+        }"
+        (click)="revealNextCard()"
+      >
+        <img
+          [src]="pulledCards[currentRevealIndex].image"
+          [alt]="pulledCards[currentRevealIndex].name"
+        />
         <div class="reveal-info">
-          <h3>{{ pulledCards[currentRevealIndex].name }}</h3>
-          <p>{{ pulledCards[currentRevealIndex].position }} • {{ pulledCards[currentRevealIndex].nationality }}</p>
-          <p>⭐ {{ pulledCards[currentRevealIndex].rarity | titlecase }} ({{ pulledCards[currentRevealIndex].rating }})</p>
+          <h3 class="card-name">
+            <img
+              *ngIf="pulledCards[currentRevealIndex]?.teamLogo"
+              [src]="pulledCards[currentRevealIndex].teamLogo"
+              alt="Team Logo"
+              class="team-logo"
+            />
+            {{ pulledCards[currentRevealIndex].name }}
+          </h3>
+          <p>
+            {{ pulledCards[currentRevealIndex].position }} •
+            {{ pulledCards[currentRevealIndex].nationality }}
+          </p>
+          <p>
+            ⭐ {{ pulledCards[currentRevealIndex].rarity | titlecase }}
+            ({{ pulledCards[currentRevealIndex].rating }})
+          </p>
           <small>Click to continue</small>
         </div>
       </div>
